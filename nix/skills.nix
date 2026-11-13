@@ -2,6 +2,9 @@
 # A raw package is the folder itself. The portable projection is the same
 # folder with a Codex/Pi-compatible SKILL.md, matching nix-darwin's
 # portableSkillSources (frontmatter only; no host-specific substitutions).
+# impeccable also installs the upstream engine beside the vendored launcher
+# (nix/impeccable-engine.nix). The portable projection copies that package,
+# so Codex and Pi receive the binary too.
 {
   skillsRoot ? ../skills,
 }:
@@ -17,14 +20,19 @@ let
     cp -R -- ${src}/. "$out/"
   '';
 
+  # The fetched engine makes impeccable a remote-input package, so it does
+  # not take the pure-local allowSubstitutes / preferLocalBuild flags.
   rawSkill =
     pkgs: name:
-    pkgs.runCommand name
-      {
-        allowSubstitutes = false;
-        preferLocalBuild = true;
-      }
-      (copyTree (skillsRoot + "/${name}"));
+    if name == "impeccable" then
+      import ./impeccable-engine.nix { inherit pkgs skillsRoot; }
+    else
+      pkgs.runCommand name
+        {
+          allowSubstitutes = false;
+          preferLocalBuild = true;
+        }
+        (copyTree (skillsRoot + "/${name}"));
 
   # Keep the original Claude sources intact. Codex and Pi want SKILL.md
   # whose first line is YAML frontmatter. index.md stands in for SKILL.md
