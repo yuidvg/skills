@@ -50,4 +50,6 @@ nix flake show github:yuidvg/skills
 
 The package output is that skill's folder. The portable `SKILL.md` adjustment is applied only for Codex and Pi.
 
-Host-specific wiring stays in nix-darwin: template includes from other `prompt/` files, the impeccable `IMPECCABLE_BIN` binding, XcodeBuildMCP, Claude Desktop skill ZIPs, and Claude managed settings.
+`impeccable` also ships the upstream engine next to the vendored launcher, at `scripts/bin/<os>-<arch>/impeccable`, for all four systems (`darwin-arm64`, `darwin-x64`, `linux-arm64`, `linux-x64`). The launcher finds that sibling binary itself, so hosts no longer need an `IMPECCABLE_BIN` binding. The Codex and Pi projection copies this package and includes the same binary.
+
+Host-specific wiring stays in nix-darwin: template includes from other `prompt/` files, XcodeBuildMCP, Claude Desktop skill ZIPs, and Claude managed settings.
